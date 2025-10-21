@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import ProgressBar from "../components/ProgressBar";
 
 export default function Quiz({ question, index, total, onSelect, onNext, score }) {
   const [selected, setSelected] = useState(question.user_answer || null);
 
+  // Reset selection when question changes
   useEffect(() => {
     setSelected(question.user_answer || null);
   }, [question]);
@@ -12,48 +15,71 @@ export default function Quiz({ question, index, total, onSelect, onNext, score }
     onSelect(ans);
   }
 
+  const progress = ((index + 1) / total) * 100;
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
+    <div className="max-w-3xl mx-auto text-center">
+      {/* Progress bar */}
+      <ProgressBar progress={progress} />
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4 text-sm text-gray-600 mt-4">
+        <span>
           Question {index + 1} / {total}
-        </div>
-        <div className="text-sm">Score: {score}</div>
+        </span>
+        <span className="font-medium">Score: {score}</span>
       </div>
 
-      <div className="p-4 rounded-md border bg-gray-50">
-        <div
-          className="font-medium mb-3"
-          dangerouslySetInnerHTML={{ __html: question.question }}
-        />
+      {/* Animated question block */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={question.question} // key change triggers animation
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.4 }}
+          className="p-6 bg-white rounded-2xl shadow-md mt-6 text-left"
+        >
+          {/* Question */}
+          <h2
+            className="text-xl font-semibold mb-4 text-gray-800"
+            dangerouslySetInnerHTML={{ __html: question.question }}
+          />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {question.all_answers.map((ans, i) => {
-            const isSelected = selected === ans;
-            return (
-              <button
-                key={i}
-                onClick={() => handleChoose(ans)}
-                className={`text-left rounded-md p-3 border transition ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50"
-                    : "bg-white hover:bg-gray-100"
-                }`}
-                dangerouslySetInnerHTML={{ __html: ans }}
-              />
-            );
-          })}
-        </div>
+          {/* Answers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {question.all_answers.map((ans, i) => {
+              const isSelected = selected === ans;
+              return (
+                <motion.button
+                  key={i}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleChoose(ans)}
+                  className={`text-left rounded-xl p-3 border transition duration-200 ${
+                    isSelected
+                      ? "border-purple-600 bg-purple-50 text-purple-800"
+                      : "bg-gray-50 hover:bg-purple-100"
+                  }`}
+                  dangerouslySetInnerHTML={{ __html: ans }}
+                />
+              );
+            })}
+          </div>
 
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={onNext}
-            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-          >
-            {index + 1 === total ? "Finish" : "Next"}
-          </button>
-        </div>
-      </div>
+          {/* Next / Finish Button */}
+          <div className="mt-6 flex justify-end">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onNext}
+              className="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700"
+            >
+              {index + 1 === total ? "Finish Quiz" : "Next →"}
+            </motion.button>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
