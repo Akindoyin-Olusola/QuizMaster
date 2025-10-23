@@ -13,7 +13,7 @@ import QuizScreen from "./pages/QuizScreen";
 import ResultScreen from "./pages/ResultScreen";
 
 export default function App() {
-  // --- State for quiz setup ---
+  // --- Quiz States ---
   const [categories, setCategories] = useState([]);
   const [loadingCats, setLoadingCats] = useState(true);
   const [error, setError] = useState(null);
@@ -26,7 +26,7 @@ export default function App() {
   });
   const [history, setHistory] = useState([]);
 
-  // --- Load categories and past quiz history ---
+  // --- Load categories & history ---
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -45,7 +45,7 @@ export default function App() {
     loadCategories();
   }, []);
 
-  // --- Start quiz ---
+  // --- Start Quiz ---
   async function startQuiz() {
     setQuizState((prev) => ({ ...prev, status: "loading" }));
     try {
@@ -59,7 +59,7 @@ export default function App() {
     }
   }
 
-  // --- Select answer ---
+  // --- Select Answer ---
   function selectAnswer(isCorrect) {
     if (isCorrect) {
       setQuizState((prev) => ({ ...prev, score: prev.score + 1 }));
@@ -67,7 +67,7 @@ export default function App() {
     nextQuestion();
   }
 
-  // --- Next question ---
+  // --- Next Question ---
   function nextQuestion() {
     if (quizState.index + 1 < quizState.questions.length) {
       setQuizState((prev) => ({ ...prev, index: prev.index + 1 }));
@@ -76,7 +76,7 @@ export default function App() {
     }
   }
 
-  // --- Finish quiz ---
+  // --- Finish Quiz ---
   function finishQuiz() {
     const record = {
       date: new Date().toISOString(),
@@ -93,7 +93,7 @@ export default function App() {
     setQuizState((prev) => ({ ...prev, status: "finished" }));
   }
 
-  // --- Reset quiz ---
+  // --- Reset Quiz ---
   function resetToHome() {
     setQuizState({ status: "idle", questions: [], index: 0, score: 0 });
   }
@@ -106,54 +106,57 @@ export default function App() {
         <Navbar />
 
         <main className="flex-grow max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow mt-6 w-full">
-          {error && <ErrorMessage message={error} />}
+          <Routes>
+            {/* Auth & Dashboard */}
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* Quiz Flow (Home → Quiz → Result) */}
-          {quizState.status === "idle" && (
-            <Home
-              categories={categories}
-              loadingCats={loadingCats}
-              form={form}
-              updateForm={setForm}
-              onStart={startQuiz}
-              history={history}
+            {/* Quiz Flow */}
+            <Route
+              path="/quiz"
+              element={
+                error ? (
+                  <ErrorMessage message={error} />
+                ) : quizState.status === "idle" ? (
+                  <Home
+                    categories={categories}
+                    loadingCats={loadingCats}
+                    form={form}
+                    updateForm={setForm}
+                    onStart={startQuiz}
+                    history={history}
+                  />
+                ) : quizState.status === "loading" ? (
+                  <Loader />
+                ) : quizState.status === "ready" && currentQuestion ? (
+                  <Quiz
+                    question={currentQuestion}
+                    index={quizState.index}
+                    total={quizState.questions.length}
+                    onSelect={selectAnswer}
+                    onNext={nextQuestion}
+                    score={quizState.score}
+                  />
+                ) : quizState.status === "finished" ? (
+                  <Result
+                    record={{ score: quizState.score, total: quizState.questions.length }}
+                    onRetake={resetToHome}
+                    questions={quizState.questions}
+                  />
+                ) : null
+              }
             />
-          )}
 
-          {quizState.status === "loading" && <Loader />}
-
-          {quizState.status === "ready" && currentQuestion && (
-            <Quiz
-              question={currentQuestion}
-              index={quizState.index}
-              total={quizState.questions.length}
-              onSelect={selectAnswer}
-              onNext={nextQuestion}
-              score={quizState.score}
-            />
-          )}
-
-          {quizState.status === "finished" && (
-            <Result
-              record={{ score: quizState.score, total: quizState.questions.length }}
-              onRetake={resetToHome}
-              questions={quizState.questions}
-            />
-          )}
+            {/* Optional separate result screens */}
+            <Route path="/quizscreen" element={<QuizScreen />} />
+            <Route path="/resultscreen" element={<ResultScreen />} />
+          </Routes>
         </main>
 
         <footer className="mt-4 text-center text-sm text-gray-500">
           Built with ❤️ using React + Tailwind — Quiz data from Open Trivia DB
         </footer>
-
-        {/* Auth & Dashboard Routes */}
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/quiz" element={<QuizScreen />} />
-          <Route path="/result" element={<ResultScreen />} />
-        </Routes>
       </div>
     </Router>
   );

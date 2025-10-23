@@ -5,14 +5,15 @@ import ProgressBar from "../components/ProgressBar";
 export default function Quiz({ question, index, total, onSelect, onNext, score }) {
   const [selected, setSelected] = useState(question.user_answer || null);
 
-  // Reset selection when question changes
+  // Reset selection when the question changes
   useEffect(() => {
     setSelected(question.user_answer || null);
   }, [question]);
 
   function handleChoose(ans) {
     setSelected(ans);
-    onSelect(ans);
+    const isCorrect = ans === question.correct_answer;
+    onSelect(isCorrect);
   }
 
   const progress = ((index + 1) / total) * 100;
@@ -33,7 +34,7 @@ export default function Quiz({ question, index, total, onSelect, onNext, score }
       {/* Animated question block */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={question.question} // key change triggers animation
+          key={question.question} // triggers animation when question changes
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
@@ -46,7 +47,7 @@ export default function Quiz({ question, index, total, onSelect, onNext, score }
             dangerouslySetInnerHTML={{ __html: question.question }}
           />
 
-          {/* Answers */}
+          {/* Answer options */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {question.all_answers.map((ans, i) => {
               const isSelected = selected === ans;
