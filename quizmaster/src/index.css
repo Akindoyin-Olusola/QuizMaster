@@ -1,21 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 entry */
+@import "tailwindcss";
 
-/* Custom Fonts */
+/* Load fonts */
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Merriweather:wght@400;700&display=swap');
 
-body {
-  @apply bg-white text-gray-800 font-[Lora];
+/* Base styles (avoid @apply here to sidestep the v4 @reference rule) */
+@layer base {
+  body {
+    /* Tailwind equivalents were: bg-white text-gray-800 */
+    background-color: #ffffff;
+    color: #1f2937; /* gray-800 */
+    font-family: "Lora", serif;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4 {
+    /* Tailwind equivalent was: text-purple-700 */
+    color: #7e22ce; /* purple-700 */
+    font-family: "Merriweather", serif;
+  }
 }
 
-h1, h2, h3, h4 {
-  @apply font-[Merriweather] text-purple-700;
-}
-
-button {
-  @apply bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-all duration-300;
-}
-body {
-  @apply bg-lavender text-gray-800 font-body;
+/* Components: you can keep @apply here for convenience or switch to raw CSS */
+@layer components {
+  button,
+  .btn {
+    /* Equivalent Tailwind classes:
+       bg-purple-600 text-white px-4 py-2 rounded-xl transition-all duration-300 hover:bg-purple-700 */
+    background-color: #7c3aed; /* purple-600 */
+    color: #ffffff;
+    padding: 0.5rem 1rem; /* py-2 px-4 */
+    border-radius: 0.75rem; /* rounded-xl */
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+  button:hover,
+  .btn:hover {
+    background-color: #6d28d9; /* purple-700 */
+  }
 }

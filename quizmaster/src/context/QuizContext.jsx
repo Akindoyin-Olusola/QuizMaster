@@ -3,22 +3,20 @@ import { createContext, useState } from "react";
 export const QuizContext = createContext();
 
 export const QuizProvider = ({ children }) => {
-  // User authentication state
   const [user, setUser] = useState(null);
 
-  // Quiz configuration (category, difficulty, amount)
+  // single source of truth for quiz config
   const [quizConfig, setQuizConfig] = useState({
     category: "",
-    difficulty: "",
+    difficulty: "easy",
     amount: 10,
   });
 
-  // Quiz progress and scoring
+  // quiz runtime state (optional to use elsewhere)
   const [questions, setQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // Reset quiz data
   const resetQuiz = () => {
     setQuestions([]);
     setScore(0);
